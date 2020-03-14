@@ -12,11 +12,6 @@ TITLE = DEFAULT_TITLE
 PATH_OF_CURRENTLY_OPENED_FILE = None
 
 
-# Function prototypes
-def saveAs():
-    pass
-
-
 # Function to demonstrate NEW command
 def newFile():
     global TITLE
