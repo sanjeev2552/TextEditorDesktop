@@ -1,6 +1,7 @@
 # Imports
 from tkinter import *
 from tkinter.ttk import *
+from tkinter import font
 from tkinter.messagebox import *
 from tkinter.filedialog import *
 from datetime import date, datetime
@@ -200,7 +201,7 @@ class MenuBar:
                                       command=lambda: setWrap(self, textArea))
         self.__Format.add_command(label="Font...",
                                   underline=0,
-                                  command=lambda: FontChooser())
+                                  command=lambda: FontChooser(self.__master))
 
         self.__master.config(menu=self.__menubar)
 
@@ -250,10 +251,17 @@ class FontChooser:
         self.__fontWindow = Toplevel(master)
         self.__fontWindow.title("Font")
         self.__fontWindow.geometry('500x500+300+150')
+        self.__fonts = list(font.families(master))
+        self.__fonts.sort()
+        self.__text = StringVar()
+        self.__fontFamilies = Combobox(self.__fontWindow,
+                                       values=self.__fonts,
+                                       textvariable=self.__text)
+        self.__fontFamilies.pack(side=TOP)
 
 
 # Function to show CONTEXT MENU
-def showContextMenu(event, contextType):
+def showContextMenu(event):
     popupMenu = Menu(master, tearoff=0)
     popupMenu.add_command(label="Undo")
     popupMenu.add_separator()
@@ -262,9 +270,6 @@ def showContextMenu(event, contextType):
     popupMenu.add_command(label="Paste")
     popupMenu.add_command(label="Select All")
 
-    # if contextType == 'post':
-    #     popupMenu.post(event.x_root, event.y_root)
-    # else:
     popupMenu.tk_popup(event.x_root, event.y_root)
 
 
@@ -287,15 +292,11 @@ if __name__ == "__main__":
     master.bind("<Control-q>", lambda e: exitApplication())
     master.bind("<Control-Q>", lambda e: exitApplication())
 
-    # If platform is macOS
-    if master.tk.call('tk', 'windowingsystem') == MAC_WINDOWING_SYSTEM:
-        master.bind("<Button-2>", lambda e: showContextMenu(e, 'post'))
-    # If platform is Unix
-    elif master.tk.call('tk', 'windowingsystem') == UNIX_WINDOWING_SYSTEM:
-        master.bind("<Button-3>", lambda e: showContextMenu(e, 'popup'))
-    # If platform is Windows
-    else:
-        master.bind("<Button-3>", lambda e: showContextMenu(e, 'post'))
+    if master.tk.call('tk',
+                      'windowingsystem') == MAC_WINDOWING_SYSTEM:  # for macOS
+        master.bind("<Button-2>", showContextMenu)
+    else:  # for windows and unix
+        master.bind("<Button-3>", showContextMenu)
 
     master.protocol("WM_DELETE_WINDOW", exitApplication)
 
