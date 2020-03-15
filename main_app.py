@@ -5,6 +5,10 @@ from tkinter.messagebox import *
 from tkinter.filedialog import *
 from datetime import date, datetime
 
+MAC_WINDOWING_SYSTEM = 'aqua'
+UNIX_WINDOWING_SYSTEM = 'x11'
+WINDOWS_WINDOWING_SYSTEM = 'win32'
+
 # Constants
 DEFAULT_TITLE = "Untitled - TextEditor"
 DEFAULT_UNSAVED_TITLE = "*Untitled - TextEditor"
@@ -249,7 +253,7 @@ class FontChooser:
 
 
 # Function to show CONTEXT MENU
-def showContextMenu(event):
+def showContextMenu(event, contextType):
     popupMenu = Menu(master, tearoff=0)
     popupMenu.add_command(label="Undo")
     popupMenu.add_separator()
@@ -258,7 +262,10 @@ def showContextMenu(event):
     popupMenu.add_command(label="Paste")
     popupMenu.add_command(label="Select All")
 
-    popupMenu.post(event.x_root, event.y_root)
+    # if contextType == 'post':
+    #     popupMenu.post(event.x_root, event.y_root)
+    # else:
+    popupMenu.tk_popup(event.x_root, event.y_root)
 
 
 if __name__ == "__main__":
@@ -281,12 +288,14 @@ if __name__ == "__main__":
     master.bind("<Control-Q>", lambda e: exitApplication())
 
     # If platform is macOS
-    if master.tk.call('tk', 'windowingsystem') == 'aqua':
-        master.bind("<Button-2>", showContextMenu)
-
+    if master.tk.call('tk', 'windowingsystem') == MAC_WINDOWING_SYSTEM:
+        master.bind("<Button-2>", lambda e: showContextMenu(e, 'post'))
+    # If platform is Unix
+    elif master.tk.call('tk', 'windowingsystem') == UNIX_WINDOWING_SYSTEM:
+        master.bind("<Button-3>", lambda e: showContextMenu(e, 'popup'))
     # If platform is Windows
     else:
-        master.bind("<Button-3>", showContextMenu)
+        master.bind("<Button-3>", lambda e: showContextMenu(e, 'post'))
 
     master.protocol("WM_DELETE_WINDOW", exitApplication)
 
