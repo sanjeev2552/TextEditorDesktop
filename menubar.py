@@ -6,7 +6,7 @@ class MenuBar:
     def __init__(self, master=None, **kw):
         self.__master = master
         self.__menubar = Menu(self.__master)
-        self.selectAll = kw['selectAll']
+        self.__selectAll = kw['selectAll']
 
         self.__File = Menu(self.__menubar, tearoff=0, name="file")
         self.__Edit = Menu(self.__menubar, tearoff=0, name="edit")
@@ -77,7 +77,8 @@ class MenuBar:
                                       (self, kw['textArea']))
         self.__Format.add_command(label="Font...",
                                   underline=0,
-                                  command=kw['fontChooser'])
+                                  command=lambda: kw['fontChooser']
+                                  (self.__master))
 
         self.__master.config(menu=self.__menubar)
 
@@ -95,6 +96,6 @@ class MenuBar:
         popupMenu.add_command(label="Cut")
         popupMenu.add_command(label="Copy")
         popupMenu.add_command(label="Paste")
-        popupMenu.add_command(label="Select All", command=self.selectAll)
+        popupMenu.add_command(label="Select All", command=self.__selectAll)
 
         popupMenu.tk_popup(event.x_root, event.y_root)
