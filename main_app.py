@@ -74,6 +74,10 @@ def saveAs():
     value = textObject.get("1.0", "end-1c")
     if fileToSave:
         fileToSave.write(value)
+        parts = fileToSave.name.split('/')[-1]
+        parts = parts.split('.')[0]
+        TITLE = parts
+        master.title(TITLE)
 
 
 # Function to demonstrate EXIT command
