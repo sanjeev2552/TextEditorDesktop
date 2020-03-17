@@ -1,6 +1,8 @@
 from tkinter import *
 from tkinter.ttk import *
 
+DEFAULT_FONT = ('COnsolas', 11, '')
+
 
 class TextArea:
     def __init__(self, master=None, **kw):
@@ -16,7 +18,7 @@ class TextArea:
             borderwidth=0,
             highlightthickness=0,  # for macOS
             wrap=self.__isWrap,
-            font=('consolas', 11),
+            font=DEFAULT_FONT,
             xscrollcommand=self.__xScroll.set,
             yscrollcommand=self.__yScroll.set,
             maxundo=2000,
@@ -36,3 +38,12 @@ class TextArea:
         else:
             self.__isWrap = NONE
         self.__textArea.configure(wrap=self.__isWrap)
+
+    def setNewFont(self, newFont):
+        newSize = newFont[1]
+        newStyle = newFont[2].lower()
+        newFont = newFont[0]
+
+        if newStyle == 'regular':
+            newStyle = ''
+        self.__textArea.config(font=(newFont, int(newSize), newStyle))

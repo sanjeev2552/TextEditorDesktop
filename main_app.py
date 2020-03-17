@@ -129,7 +129,7 @@ def setWrap(menuBar, textArea):
 
 
 def fontChooser(master):
-    fontChooser = FontChooser(master)
+    fontChooser = FontChooser(master=master, callback_func=textArea.setNewFont)
 
 
 if __name__ == "__main__":

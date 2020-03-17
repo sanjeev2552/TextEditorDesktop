@@ -3,34 +3,30 @@ from tkinter.ttk import *
 
 from constants import *
 
+FONT = 'Consolas'
+SIZE = '11'
+STYLE = 'Regular'
+
 
 class LabeledCombobox(Frame):
-    def __init__(self,
-                 master=None,
-                 text=None,
-                 values=None,
-                 textvariable=None,
-                 width=None,
-                 index=None,
-                 callback_func=None):
+    def __init__(self, master=None, **kw):
         Frame.__init__(self, master)
-        self.__label = Label(self, text=text)
+        self.__label = Label(self, text=kw['text'])
         self.__combo = Combobox(self,
-                                values=values,
-                                textvariable=textvariable,
+                                values=kw['values'],
+                                textvariable=kw['textvariable'],
                                 state='readonly',
-                                width=width,
+                                width=kw['width'],
                                 height=6)
-        print(index)
-        self.__combo.current(index)
-        # self.__label.grid(row=row, column=column, sticky=W)
-        # self.__combo.grid(row=row + 1, column=column)
-        self.__label.pack(side=TOP, anchor=W)
-        self.__combo.pack(side=BOTTOM)
 
-        self.pack(side=LEFT, anchor=N)
+        self.__combo.current(kw['index'])
+        self.__label.grid(row=kw['row'], column=kw['column'], sticky=W)
+        self.__combo.grid(row=kw['row'] + 1, column=kw['column'])
 
-        self.__combo.bind("<<ComboboxSelected>>", lambda e: callback_func())
+        self.grid(row=kw['row'], column=kw['column'])
+
+        self.__combo.bind("<<ComboboxSelected>>", lambda e: kw['callback_func']
+                          ())
         self.configure(padding=(12, 12, 0, 0))
 
 
@@ -38,7 +34,8 @@ class FontChooser:
     def __init__(self, master=None, **kw):
         self.__fontWindow = Toplevel(master)
         self.__fontWindow.title("Font")
-        self.__fontWindow.geometry('425x440+300+150')
+        self.__fontWindow.geometry('425x430+300+150')
+        self.__fontWindow.resizable(0, 0)
 
         self.__fontFamilies = font.families(self.__fontWindow)
 
@@ -54,32 +51,77 @@ class FontChooser:
         self.__styleVar = StringVar()
         self.__sizeVar = StringVar()
 
-        self.__lc1 = LabeledCombobox(self.__fontWindow, 'Font:',
-                                     self.__fontFamilies, self.__fontVar, 26,
-                                     self.__fontFamilies.index('Consolas'),
-                                     self.changeSampleTextStyle)
+        self.__lc1 = LabeledCombobox(master=self.__fontWindow,
+                                     text='Font:',
+                                     values=self.__fontFamilies,
+                                     textvariable=self.__fontVar,
+                                     width=26,
+                                     index=self.__fontFamilies.index(FONT),
+                                     row=0,
+                                     column=0,
+                                     callback_func=self.changeSampleTextStyle)
 
-        self.__lc2 = LabeledCombobox(self.__fontWindow, 'Font Style:',
-                                     FONT_STYLES, self.__styleVar, 18,
-                                     FONT_STYLES.index('Regular'),
-                                     self.changeSampleTextStyle)
+        self.__lc2 = LabeledCombobox(master=self.__fontWindow,
+                                     text='Font Style:',
+                                     values=FONT_STYLES,
+                                     textvariable=self.__styleVar,
+                                     width=18,
+                                     index=FONT_STYLES.index(STYLE),
+                                     row=0,
+                                     column=1,
+                                     callback_func=self.changeSampleTextStyle)
 
-        self.__lc3 = LabeledCombobox(self.__fontWindow, 'Size:', FONT_SIZES,
-                                     self.__sizeVar, 7, FONT_SIZES.index('11'),
-                                     self.changeSampleTextStyle)
+        self.__lc3 = LabeledCombobox(master=self.__fontWindow,
+                                     text='Size:',
+                                     values=FONT_SIZES,
+                                     textvariable=self.__sizeVar,
+                                     width=7,
+                                     index=FONT_SIZES.index(SIZE),
+                                     row=0,
+                                     column=2,
+                                     callback_func=self.changeSampleTextStyle)
 
-        self.__sample = Labelframe(self.__fontWindow,
-                                   text="Sample",
-                                   height=72,
-                                   width=200)
-        self.__sample.pack(side=BOTTOM, pady=130, anchor='center')
+        self.__sample = LabelFrame(self.__fontWindow,
+                                   text='Sample',
+                                   height=80,
+                                   width=220,
+                                   borderwidth=2)
+        self.__sample.grid(row=2,
+                           column=1,
+                           columnspan=200,
+                           sticky='w',
+                           pady=120,
+                           ipadx=2,
+                           ipady=2)
 
-        self.__label = Label(self.__sample, text='AaBbYyZz')
-        self.__label.pack(expand=FALSE)
+        self.__label = Label(self.__sample, text="AaBbYyZz")
+        self.__label.place(relx=.5, rely=.5, anchor=CENTER)
+
+        self.__btnok = Button(self.__fontWindow,
+                              text='OK',
+                              command=lambda: kw['callback_func']
+                              (self.applyStyles()))
+        self.__btnok.grid(row=3, column=1, sticky=E, padx=10)
+
+        self.__btncancel = Button(self.__fontWindow,
+                                  text='Cancel',
+                                  command=self.__fontWindow.destroy)
+        self.__btncancel.grid(row=3, column=2, sticky=E)
 
     def changeSampleTextStyle(self):
         styleVar = self.__styleVar.get()
+
         if self.__styleVar.get() == 'Regular':
             styleVar = ''
+
         self.__label.config(font=(self.__fontVar.get(), self.__sizeVar.get(),
-                                  styleVar))
+                                  styleVar.lower()))
+
+    def applyStyles(self):
+        DEFAULT_FONT = self.__fontVar.get()
+        DEFAULT_STYLE = self.__styleVar.get()
+        DEFAULT_SIZE = self.__sizeVar.get()
+
+        self.__fontWindow.destroy()
+        return (self.__fontVar.get(), self.__sizeVar.get(),
+                self.__styleVar.get())
